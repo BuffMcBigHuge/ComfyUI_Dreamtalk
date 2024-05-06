@@ -207,7 +207,8 @@ class DreamTalk:
         pose_files = [f for f in os.listdir(pose_dir) if os.path.isfile(os.path.join(pose_dir, f))]
         return {"required": {
                     "image": ("IMAGE", ),
-                    "audio": (sorted(files), ),
+                    "audio": ("STRING", {"default": "" }),
+                    # "audio": (sorted(files), ),
                     "style_clip": (sorted(style_clip_files), {"default": "M030_front_neutral_level1_001.mat"}),
                     "pose": (sorted(pose_files),  {"default": "RichardShelby_front_neutral_level1_001.mat"}),
                     "cfg_scale": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}),
@@ -255,11 +256,14 @@ class DreamTalk:
         tmp_dir = folder_paths.get_temp_directory()
         os.makedirs(tmp_dir, exist_ok=True)
 
+        wav_path = audio
+        # wav_path = os.path.join(folder_paths.get_input_directory(), audio)
+
         # get audio in 16000Hz
-        wav_path = os.path.join(folder_paths.get_input_directory(), audio)
-        wav_16k_path = os.path.join(tmp_dir, f"{output_name}_16K.wav")
-        command = f"ffmpeg -y -i {wav_path} -async 1 -ac 1 -vn -acodec pcm_s16le -ar 16000 {wav_16k_path}"
-        subprocess.run(command.split())
+        wav_16k_path = audio # assume audio is already 16k
+        # wav_16k_path = os.path.join(tmp_dir, f"{output_name}_16K.wav")
+        # command = f"ffmpeg -y -i {wav_path} -async 1 -ac 1 -vn -acodec pcm_s16le -ar 16000 {wav_16k_path}"
+        # subprocess.run(command.split())
 
         # get wav2vec feat from audio
         wav2vec_processor = Wav2Vec2Processor.from_pretrained(
